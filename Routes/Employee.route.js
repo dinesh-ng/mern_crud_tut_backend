@@ -9,7 +9,8 @@ const employeeRoute = express.Router();
 let employeeModel = require("../Model/Employee");
 
 // To Get List Of Employees
-employeeRoute.route("/").get(function (req, res) {
+employeeRoute.route("/").get((req, res) => {
+  console.log("GET '/'");
   employeeModel
     .find({})
     .then((data) => res.json(data))
@@ -17,21 +18,23 @@ employeeRoute.route("/").get(function (req, res) {
 });
 
 // To Add New Employee
-employeeRoute.route("/addEmployee").post(function (req, res) {
-  let employee = new employeeModel(req.body);
+employeeRoute.route("/addEmployee").post((req, res) => {
+  const employee = new employeeModel(req.body);
   employee
     .save()
-    .then((game) => {
+    .then(() => {
+      console.log("New Employee added.");
       res.status(200).json({ employee: "Employee Added Successfully" });
     })
     .catch((err) => {
+      console.log(err);
       res.status(400).send("Something Went Wrong");
     });
 });
 
 // To Get Employee Details By Employee ID
-employeeRoute.route("/editEmployee/:id").get(function (req, res) {
-  let id = req.params.id;
+employeeRoute.route("/editEmployee/:id").get((req, res) => {
+  const id = req.params.id;
   employeeModel
     .findById(id)
     .then((employee) => {
@@ -41,8 +44,8 @@ employeeRoute.route("/editEmployee/:id").get(function (req, res) {
 });
 
 // To Update The Employee Details
-employeeRoute.route("/updateEmployee/:id").post(function (req, res, next) {
-  employeeModel.findById(req.params.id).then(function (employee) {
+employeeRoute.route("/updateEmployee/:id").post((req, res, next) => {
+  employeeModel.findById(req.params.id).then((employee) => {
     if (!employee) return res.send("Unable To Find Employee With This Id");
     else {
       employee.firstName = req.body.firstName;
@@ -56,17 +59,18 @@ employeeRoute.route("/updateEmployee/:id").post(function (req, res, next) {
           res.json("Employee Updated Successfully");
         })
         .catch((err) => {
-          res.status(400).send("Unable To Update Employee");
+          console.log(err);
+          res.status(400).send("Unable To Update Employee: " + err);
         });
     }
   });
 });
 
 // To Delete The Employee
-employeeRoute.route("/deleteEmployee/:id").get(function (req, res) {
+employeeRoute.route("/deleteEmployee/:id").get((req, res) => {
   employeeModel
     .findByIdAndRemove({ _id: req.params.id })
-    .then(function (emp) {
+    .then((emp) => {
       if (emp) res.send("Employee Deleted Successfully");
       else res.send("Not Found");
     })
